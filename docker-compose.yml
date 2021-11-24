@@ -1,0 +1,39 @@
+version: '3.5'
+
+services:
+
+  fiatwise:
+    image: lol:latest
+    ports:
+      - "8085:8080"
+    environment:
+      JVM_OPTS: "-Xmx12g -Xms12g -XX:MaxPermSize=1024m"
+      DB_HOST: db
+    networks:
+      - jarvan
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13-alpine
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - ./dbscript/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - jarvan
+
+
+networks:
+  jarvan:
+    driver: bridge
+
+volumes:
+  postgres-data:
+
